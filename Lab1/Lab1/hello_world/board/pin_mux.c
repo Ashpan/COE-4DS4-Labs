@@ -38,7 +38,7 @@ void BOARD_InitBootPins(void)
 {
 
     BOARD_InitPins();
-    printf("[DEBUG] Pins Initialized!");
+    printf("[DEBUG] Pins Initialized!\n");
 }
 
 /* clang-format off */

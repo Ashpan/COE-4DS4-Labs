@@ -34,15 +34,12 @@ void setupPWM() {
 	ftmParam_DC_Motor.enableComplementary   = false;
 	ftmParam_DC_Motor.enableDeadtime        = false;
 
-
-	ftmParam_Servo_Motor.chnlNumber = FTM_CHANNEL_DC_MOTOR;
+	ftmParam_Servo_Motor.chnlNumber = FTM_CHANNEL_SERVO_MOTOR;
 	ftmParam_Servo_Motor.level = pwmLevel;
 	ftmParam_Servo_Motor.dutyCyclePercent = 7;
 	ftmParam_Servo_Motor.firstEdgeDelayPercent = 0U;
 	ftmParam_Servo_Motor.enableComplementary   = false;
 	ftmParam_Servo_Motor.enableDeadtime        = false;
-
-
 
 	FTM_GetDefaultConfig(&ftmInfo);
 	ftmInfo.prescale = kFTM_Prescale_Divide_128;
@@ -81,7 +78,11 @@ int main(void)
 {
     uint8_t ch;
     int DCMotorSpeed, ServoMotorAngle;
-    float dutyCycle;
+    float DCMotorDutyCycle, ServoMotorDutyCycle;
+    float servoInputStart = -100.0;
+    float servoInputEnd = 100.0;
+    float servoOutputStart = 0.05;
+    float servoOutputEnd = 0.1;
 
     /* Init board hardware. */
     BOARD_InitBootPins();
@@ -97,10 +98,12 @@ int main(void)
     updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, 0.0615);
     FTM_SetSoftwareTrigger(FTM_MOTOR, true);
 
-    scanf("DC Motor Speed = %d", &DCMotorSpeed);
-    scanf("Servo Motor Angle = %d", &ServoMotorAngle);
-    dutyCycle = DCMotorSpeed * 0.025f/100.0f + 0.0615;
-    updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, dutyCycle);
+    scanf("%d", &DCMotorSpeed);
+    scanf("%d", &ServoMotorAngle);
+    DCMotorDutyCycle = DCMotorSpeed * 0.025f/100.0f + 0.0615;
+	ServoMotorDutyCycle = servoOutputStart + ((servoOutputEnd - servoOutputStart) / (servoInputEnd - servoInputStart)) * (ServoMotorAngle - servoInputStart);
+	updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
+    updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, ServoMotorDutyCycle);
 
     FTM_SetSoftwareTrigger(FTM_MOTOR, true);
 

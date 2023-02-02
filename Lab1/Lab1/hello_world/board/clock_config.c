@@ -90,7 +90,7 @@ static void CLOCK_CONFIG_SetFllExtRefDiv(uint8_t frdiv)
 void BOARD_InitBootClocks(void)
 {
     BOARD_BootClockRUN();
-    printf("[DEBUG] Clocks have been initialized");
+    printf("[DEBUG] Clocks have been initialized\n");
 }
 
 /*******************************************************************************
