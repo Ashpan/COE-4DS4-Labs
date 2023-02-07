@@ -114,7 +114,8 @@ typedef enum {
 	SELECT_ANGLE
 } TeMessageSelector;
 
-TeMessageReady constructMessage(char* newChar) {
+TeMessageReady constructMessage() {
+	char* newChar = (char*) &ch;
 	// Flag used to reset message buffers on next function invocations
 	static uint8_t resetBuffers = 0;
 	// messageSelector:
@@ -135,6 +136,7 @@ TeMessageReady constructMessage(char* newChar) {
 	}
 
 	if (*newChar == ',') {
+		resetBuffers = 1;
 		messageSelector = SELECT_ANGLE;
 		return MSG_SPEED_READY;
 	}
@@ -157,7 +159,6 @@ TeMessageReady constructMessage(char* newChar) {
  */
 int main(void)
 {
-    char ch;
     char txbuff[] = "CAN I GET A HOOOYYYAAAA\r\n";
     memset(&speedBuffer, 0, MSG_BUFF_SIZE);
     memset(&angleBuffer, 0, MSG_BUFF_SIZE);
@@ -194,10 +195,9 @@ int main(void)
 //		UART_ReadBlocking(TARGET_UART, &ch, 1);
     	if (new_char) {
     		new_char = 0;
-
     		printf("%c\r\n", ch);
-			msgState = constructMessage(&ch);
-
+			msgState = constructMessage();
+//
 			if (msgState == MSG_SPEED_READY) {
 				printf("Speed string: (%s)\n", speedBuffer);
 				DCMotorSpeed = atoi(speedBuffer);
