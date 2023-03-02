@@ -44,8 +44,9 @@ void userInputTask(void *pvParameters) {
 	EventBits_t bits = xEventGroupWaitBits(event_group, TAKE_INPUT_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
 
 	if (bits == TAKE_INPUT_BIT) {
-		printf("Entered user input: ");
+		printf("Enter user input: ");
 		fgets(userInputLower, USER_INPUT_SIZE, stdin);
+		userInputLower[strcspn(userInputLower, "\n")] = 0; //Strip newline char
 
 		while(userInputLower[i] != '\0') {
 			userInputUpper[i] = toupper(userInputLower[i]);
@@ -66,7 +67,7 @@ void printfLowerTask(void *pvParameters) {
 	{
 		bits = xEventGroupWaitBits(event_group, PRINT_LOWER_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
 		if (bits == PRINT_LOWER_BIT) {
-			PRINTF("%s\r\n", userInputLower);
+			PRINTF("%s\n", userInputLower);
 			xEventGroupSetBits(event_group, PRINT_UPPER_BIT);
 		}
 	}
@@ -84,7 +85,7 @@ void printfUpperTask(void *pvParameters) {
 	{
 		bits = xEventGroupWaitBits(event_group, PRINT_UPPER_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
 		if (bits == PRINT_UPPER_BIT) {
-			PRINTF("%s\r\n", userInputUpper);
+			PRINTF("%s\n", userInputUpper);
 			xEventGroupSetBits(event_group, PRINT_LOWER_BIT);
 		}
 	}

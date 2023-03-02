@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.nxp.mcuxpresso.core.debug.support.segger.launchConfigurationType">
-    <stringAttribute key="com.crt.ctrlcenter.OFSemuDetails" value="JLink801029460"/>
+    <stringAttribute key="com.crt.ctrlcenter.OFSemuDetails" value="JLink801029443"/>
     <booleanAttribute key="com.crt.ctrlcenter.mainBreakIsHardware" value="true"/>
     <stringAttribute key="com.crt.ctrlcenter.serialNumber" value="USB 801029460"/>
     <mapAttribute key="com.crt.ctrlcenter.symbolsGroupSettings"/>

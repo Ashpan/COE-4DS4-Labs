@@ -76,7 +76,7 @@ int main(void) {
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
 
-	QueueHandle_t queue1 = xQueueCreate(1, sizeof(int));
+	QueueHandle_t queue1 = xQueueCreate(1, sizeof(char)*50);
 	if (queue1 == NULL) {
 		PRINTF("Queue creation failed!.\r\n");
 		while(1);
@@ -88,7 +88,7 @@ int main(void) {
 		while(1);
 	}
 
-	status = xTaskCreate(printfTask, "printf", 200, (void *)queue1, 2, NULL);
+	status = xTaskCreate(printfTask, "printf", 200, (void *)queue1, 3, NULL);
 	if (status != pdPASS) {
 		PRINTF("Task creation failed!.\r\n");
 		while(1);

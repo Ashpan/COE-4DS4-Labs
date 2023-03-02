@@ -49,10 +49,10 @@ static void hello_task(void *pvParameters)
     	status = xSemaphoreTake(xSemaphore, portMAX_DELAY);
 		if (status != pdPASS)
 		{
-			PRINTF("Failed to acquire semaphore\r\n");
+			PRINTF("Failed to acquire semaphore\n");
 			while (1);
 		}
-        PRINTF("Hello world.\r\n");
+        PRINTF("Hello world.\n");
     }
 }
 

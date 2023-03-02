@@ -41,7 +41,7 @@ void userInputTask(void *pvParameters) {
 
 	printf("Entered user input: ");
 	fgets(userInputLower, USER_INPUT_SIZE, stdin);
-
+	userInputLower[strcspn(userInputLower, "\n")] = 0; //Strip newline char
 	while(userInputLower[i] != '\0') {
 		userInputUpper[i] = toupper(userInputLower[i]);
 		i++;

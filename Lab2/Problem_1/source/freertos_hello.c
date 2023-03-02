@@ -36,7 +36,7 @@ void userInputTask(void* pvParameters) {
 void printfTask(void* pvParameters) {
 	while(1) {
 		if (inputFlag) {
-			PRINTF("%s.\r\n", userInput);
+			PRINTF("%s\r\n", userInput);
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
 		}
 
