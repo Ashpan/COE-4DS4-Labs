@@ -41,6 +41,12 @@ void BOARD_InitBootPins(void);
  */
 void BOARD_InitPins(void);
 
+/*!
+ * @brief Configures motor PWM pins.
+ *
+ */
+void BOARD_InitMotorPins(void);
+
 #if defined(__cplusplus)
 }
 #endif
