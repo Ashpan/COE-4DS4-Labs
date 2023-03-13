@@ -34,7 +34,7 @@ void setupLEDComponent()
 
     /*************** LED Task ***************/
 	// Create LED Queue
-	QueueHandle_t led_queue = xQueueCreate(1, sizeof(int));
+	led_queue = xQueueCreate(1, sizeof(int));
 	
 	// Error checking for LED Queue
 	if (led_queue == NULL) {
@@ -198,7 +198,7 @@ void ledReceiveTask(void *pvParameters) {
 }
 
 void ledTask(void *pvParameters) {
-	unsigned long color; 
+	unsigned long color;
 	int receivedInput = 0;
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
