@@ -36,6 +36,6 @@ void setupLEDs();
 void setupLEDPins();
 
 void ledTask(void* pvParameters);
-void receiveLedInput(void* pvParameters);
+void ledReceiveTask(void* pvParameters);
 
 #endif /* TERMINAL_COMPONENT_H */

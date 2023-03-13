@@ -9,13 +9,20 @@ QueueHandle_t led_queue;
 
 #define TRUE (1u)
 #define FALSE (0u)
-#define MODULE_NAME "LED Component"
+#define MODULE_NAME ("LED Component")
 
-uint8_t inputFlag = FALSE;	
+int inputFlag = FALSE;
+
+//enum LED_state {
+//	RED = 1,
+//	YELLOW = 2,
+//	GREEN = 3
+//};
 
 #define RED (0xff0000)
-#define YELLOW (0x0000FF)
+#define YELLOW (0xffff00)
 #define GREEN (0x00ff00)
+
 
 void setupLEDComponent()
 {
@@ -27,7 +34,7 @@ void setupLEDComponent()
 
     /*************** LED Task ***************/
 	// Create LED Queue
-	QueueHandle_t led_queue = xQueueCreate(1, sizeof(char)*50);
+	QueueHandle_t led_queue = xQueueCreate(1, sizeof(int));
 	
 	// Error checking for LED Queue
 	if (led_queue == NULL) {
@@ -39,11 +46,8 @@ void setupLEDComponent()
 	//Create LED Task
 	BaseType_t status;
 
-	// Initial Testing 
-	unsigned long ulVar = 10UL;
-
-	// status = xQueueSendToBack(led_queue, (void *)&ulVar, portMAX_DELAY);
-	status = xTaskCreate(receiveLedInput, "receiveLedInput", 200, (void *)led_queue, 2, NULL);
+	// Create ledReceiveTask
+	status = xTaskCreate(ledReceiveTask, "ledReceiveTask", 200, (void *)led_queue, 2, NULL);
 
 	// Error checking for creating LED Task
 	if (status != pdPASS) {
@@ -51,6 +55,7 @@ void setupLEDComponent()
 		while(1);
 	}
 
+	// Create ledTask
 	status = xTaskCreate(ledTask, "ledTask", 200, (void *)led_queue, 3, NULL);
 
 	// Error checking for creating LED Task
@@ -118,7 +123,7 @@ void setupLEDPins()
     PORT_SetPinMux(PORTC, 8u, kPORT_MuxAlt3);
     PORT_SetPinMux(PORTC, 9u, kPORT_MuxAlt3);
 
-    printf("%s: Successfully set init boot pins!\r\n", MODULE_NAME);
+    printf("%s: Successfully set boot pins!\r\n", MODULE_NAME);
 }
 
 void setupLEDs()
@@ -147,7 +152,7 @@ void setupLEDs()
 	ftmParamGreen.enableComplementary = false;
 	ftmParamGreen.enableDeadtime = false;
 
-	// GREEN LED
+	// GREEN LED FTM
 	ftmParamBlue.chnlNumber = kFTM_Chnl_4;
 	ftmParamBlue.level = kFTM_HighTrue;
 	ftmParamBlue.dutyCyclePercent = 0;
@@ -168,21 +173,25 @@ void setupLEDs()
 
 }
 
-void receiveLedInput(void *pvParameters) {
-	char userInput[50] = "";
+// For testing, will probably move to RC Component to send stuff
+void ledReceiveTask(void *pvParameters) {
+
+	int input;
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
 
-	printf("Entered user input: ");
-	scanf("%s", &userInput);
+	printf("Enter user input: ");
+	scanf("%d", &input);
 
-	status = xQueueSendToBack(queue1, (void *)userInput, portMAX_DELAY);
+	status = xQueueSendToBack(queue1, (void *)&input, portMAX_DELAY);
 	if (status != pdPASS)
 	{
-		PRINTF("Queue Send failed!.\r\n");
+		printf("Queue Send failed!.\r\n");
 		while(1);
 	}
 
+
+	printf("%s: Received LED Input = %d\r\n", MODULE_NAME, input);
 	inputFlag = TRUE;
 
 	vTaskDelete(NULL);
@@ -190,30 +199,34 @@ void receiveLedInput(void *pvParameters) {
 
 void ledTask(void *pvParameters) {
 	unsigned long color; 
-	char receivedInput[50] = "";
+	int receivedInput = 0;
 	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 	BaseType_t status;
 
+
 	status = xQueueReceive(queue1, (void *)&receivedInput, portMAX_DELAY);
 	if (status != pdPASS) {
-		PRINTF("Queue Receive failed!.\r\n");
+		printf("Queue Receive failed!.\r\n");
 		while(1);
 	}
 
+
 	while (1) {
 		if (inputFlag) {
-				if (strcmp("1", receivedInput) == 0){ color = GREEN; }
-				if (strcmp("2", receivedInput) == 0){ color = YELLOW; }
-				if (strcmp("3", receivedInput) == 0){ color = RED; }
+				if (receivedInput == 1){ color = GREEN; }
+				if (receivedInput == 2){ color = YELLOW; }
+				if (receivedInput == 3){ color = RED; }
 
-				// unsigned long hex_code = 0x00ff00;
+				// set colors of LED
 				FTM_UpdatePwmDutycycle(FTM_LED, FTM_RED_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 16) & (0xFF))/255)*100);
 				FTM_UpdatePwmDutycycle(FTM_LED, FTM_GREEN_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 8) & (0xFF))/255)*100);
 				FTM_UpdatePwmDutycycle(FTM_LED, FTM_BLUE_CHANNEL, kFTM_EdgeAlignedPwm, (((color) & (0xFF))/255)*100);
 				FTM_SetSoftwareTrigger(FTM_LED, true);
 
-			// PRINTF("%s\r\n", receivedInput);
-			// vTaskDelay(1000 / portTICK_PERIOD_MS);
+				printf("%s: Set LED Color = %d\r\n", MODULE_NAME, receivedInput);
+
+				break;
+
 		}
 
 		// Force scheduler to move to other tasks if inputFlag != TRUE
@@ -222,61 +235,3 @@ void ledTask(void *pvParameters) {
 
 	vTaskDelete(NULL);
 }
-
-
-
-
-//void receiveLedInput(void* pvParameters){
-//	char userInput[50] = "";
-//	// int input = 3;
-//	QueueHandle_t led_queue = (QueueHandle_t)pvParameters;
-//	BaseType_t status;
-//
-//	printf("Entered user input: ");
-//	scanf("%s", userInput);
-//
-//	status = xQueueSendToBack(led_queue, (void *)userInput, portMAX_DELAY);
-//	if (status != pdPASS)
-//	{
-//		PRINTF("Queue Send failed!.\r\n");
-//		while(1);
-//	}
-//
-//	inputFlag = 1;
-//
-//	vTaskDelete(NULL);
-//}
-//
-//void ledTask(void* pvParameters)
-//{
-//	printf("%s: Initialize LED Task\r\n", MODULE_NAME);
-//
-//	char receivedInput[50] = "";
-//	int led_input;
-//
-//	//LED task implementation
-//	QueueHandle_t led_queue = (QueueHandle_t)pvParameters;
-//	BaseType_t status;
-//
-//	// Receive input from RC Controller
-//	status = xQueueReceive(led_queue, (void * )&receivedInput, portMAX_DELAY);
-//
-//	// Error catching for queue reeiving failed
-//	if (status != pdPASS) {
-//		PRINTF("%s: Queue Receive failed!.\r\n", MODULE_NAME);
-//		while(1);
-//	}
-//
-//	while (TRUE){
-//		if (inputFlag) {
-//			PRINTF("%d\r\n", receivedInput);
-//			vTaskDelay(1000 / portTICK_PERIOD_MS);
-//		}
-//
-//		// Force scheduler to move to other tasks if inputFlag != TRUE
-//		vTaskDelay(10 / portTICK_PERIOD_MS);
-//	}
-//
-//	vTaskDelete(NULL);
-//	// printf("%d\n", *led_input);
-//}
