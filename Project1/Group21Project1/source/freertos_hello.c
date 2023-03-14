@@ -4,6 +4,7 @@
 #include "fsl_device_registers.h"
 #include "clock_config.h"
 #include "board.h"
+#include "fsl_uart.h"
 
 #include "Motor_Control_Component.h"
 #include "RC_Receiver_Component.h"
@@ -18,7 +19,7 @@ int main(void)
     printf("BOOT CLOCKS INIT");
 //
 //    setupMotorComponent();
-//    setupRCReceiverComponent();
+    setupRCReceiverComponent();
 //    setupTerminalComponent();
 //    setupLEDComponent();
 //    setupAccelerometerComponent();

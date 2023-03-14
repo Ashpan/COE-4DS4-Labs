@@ -62,6 +62,14 @@ void BOARD_InitPins(void)
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
+    CLOCK_EnableClock(kCLOCK_PortC);
+    /* PTC3 configured as UART1_RX */
+    PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
+
+    PORT_SetPinMux(PORTC, 4U, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 2U, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt3);
+
     /* PORTB16 (pin E10) is configured as UART0_RX */
     PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt3);
 
