@@ -17,11 +17,11 @@ int main(void)
     /* Init board hardware. */
     BOARD_InitBootClocks();
     printf("BOOT CLOCKS INIT");
-//
+    setupLEDComponent();
 //    setupMotorComponent();
     setupRCReceiverComponent();
 //    setupTerminalComponent();
-//    setupLEDComponent();
+
 //    setupAccelerometerComponent();
 
     vTaskStartScheduler();
