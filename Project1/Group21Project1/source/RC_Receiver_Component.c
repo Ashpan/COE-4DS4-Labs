@@ -56,17 +56,10 @@ void setupUART_RC()
 
 void rcTask(void* pvParameters)
 {
-	printf("asd2\n");
-    QueueHandle_t motorQueue = (QueueHandle_t) pvParameters;
-    QueueHandle_t angleQueue = (QueueHandle_t) pvParameters;
-//    QueueHandle_t ledQueue = (QueueHandle_t) pvParameters;
 
 	while (1)
 		{
-//			printf("asd1\n");
             // Check if the task should be paused
-
-//            printf("asd3\n");
 			UART_ReadBlocking(UART1, ptr, 1);
 			if(*ptr != 0x20)
 				continue;
@@ -79,7 +72,6 @@ void rcTask(void* pvParameters)
 				printf("Channel 6 = %d\t", rc_values.ch6);
 			}
 			printf("\n");
-//			printf("asd4\n");
             // Send the decoded values to the corresponding queues
             //xQueueSendToBack(angleQueue, &rc_values.ch1, portMAX_DELAY);
             //xQueueSendToBack(motorQueue, &rc_values.ch3, portMAX_DELAY);
