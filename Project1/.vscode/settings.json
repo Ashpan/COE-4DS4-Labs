@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "rc_receiver_component.h": "c",
+        "motor_control_component.h": "c",
+        "fsl_port.h": "c",
+        "terminal_component.h": "c"
+    }
+}

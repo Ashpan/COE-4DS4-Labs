@@ -16,6 +16,19 @@
 
 #define RC_UART		//Define UART for RC receiver
 
+typedef struct {
+    uint16_t header;
+    uint16_t ch1;
+    uint16_t ch2;
+    uint16_t ch3;
+    uint16_t ch4;
+    uint16_t ch5;
+    uint16_t ch6;
+    uint16_t ch7;
+    uint16_t ch8;
+} RC_Values;
+
+extern RC_Values rc_vals;
 extern SemaphoreHandle_t rc_hold_semaphore;
 extern TaskHandle_t rc_task_handle;
 
@@ -23,6 +36,6 @@ void setupRCReceiverComponent();
 void setupUART_RC();
 void setupRCPins();
 
-void rcTask(void* pvParameters);
+void rcTask();
 
 #endif /* RC_RECEIVER_COMPONENT_H */

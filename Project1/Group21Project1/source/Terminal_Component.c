@@ -18,12 +18,12 @@ void setupTerminalComponent()
 		PRINTF("Queue creation failed!.\r\n");
 		while (1);
 	}
-    status = xTaskCreate(uartTask, "UART task", 200, NULL, 2, NULL);
-    if (status != pdPASS)
-    {
-        PRINTF("Task creation failed!.\r\n");
-        while (1);
-    }
+    // status = xTaskCreate(uartTask, "UART task", 200, NULL, 2, NULL);
+    // if (status != pdPASS)
+    // {
+    //     PRINTF("Task creation failed!.\r\n");
+    //     while (1);
+    // }
 
     /*************** Terminal Control Task ***************/
     //Create Event groups

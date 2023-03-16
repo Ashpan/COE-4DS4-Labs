@@ -47,6 +47,12 @@ void BOARD_InitPins(void);
  */
 void BOARD_InitMotorPins(void);
 
+/*!
+ * @brief Configures RC pins.
+ *
+ */
+void BOARD_InitRCPins(void);
+
 #if defined(__cplusplus)
 }
 #endif

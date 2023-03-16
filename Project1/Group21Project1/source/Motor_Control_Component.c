@@ -19,10 +19,28 @@ void setupMotorComponent()
 
     /*************** Motor Task ***************/
 	//Create Motor Queue
+	QueueHandle_t motor_queue = xQueueCreate(1, sizeof(TsMotorData));
+	if (motor_queue == NULL) {
+		PRINTF("Motor queue creation failed!.\r\n");
+		while(1);
+	}
+
 	//Create Motor Task
+	BaseType_t status = xTaskCreate(motorTask, "motorTask", 200, NULL, 3, NULL);
+	if (status != pdPASS)
+	{
+		PRINTF("rcTask creation failed!.\r\n");
+		while (1);
+	}
 
     /*************** Position Task ***************/
 	//Create Angle Queue
+	QueueHandle_t angle_queue = xQueueCreate(1, sizeof(TsAngleData));
+	if (angle_queue == NULL) {
+		PRINTF("Angle queue creation failed!.\r\n");
+		while(1);
+	}
+	
 	//Create Position Task
 }
 
@@ -92,31 +110,35 @@ void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
 void motorTask(void* pvParameters)
 {
 	TsMotorData motor_data;
-	motor_queue = (QueueHandle_t)pvParameters;
+	uint8_t speed = 0;
+	QueueHandle_t queue = (QueueHandle_t)pvParameters;
 
-	BaseType_t status = xQueueReceive(motor_queue, (void *)&motor_data, portMAX_DELAY);
+	BaseType_t status = xQueueReceive(queue, (void *)&motor_data, portMAX_DELAY);
 	if (status != pdPASS) {
-		PRINTF("Queue Receive failed!.\r\n");
+		PRINTF("Motor queue receive failed!.\r\n");
 		while(1);
 	}
-//	switch (motor_queue->TeDataSource) {
-//		case (DATA_SOURCE_RC) {
-//
-//			break;
-//		}
-//		case (DATA_SOURCE_TERM) {
-//
-//			break;
-//		}
-//		case (DATA_SOURCE_ACCEL) {
-//
-//			break;
-//		}
-//		default {
-//			break;
-//		}
-//	}
 
+	switch (motor_data.source) {
+		case (DATA_SOURCE_RC):
+			speed = motor_data.speed;
+			int DCMotorDutyCycle = speed * 0.025f/100.0f + 0.0615;
+			updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
+			FTM_SetSoftwareTrigger(FTM_MOTORS, true);
+			break;
+		// case (DATA_SOURCE_TERM) {
+
+		// 	break;
+		// }
+		// case (DATA_SOURCE_ACCEL) {
+
+		// 	break;
+		// }
+		default:
+			break;
+	}
+
+	vTaskDelay(10 / portTICK_PERIOD_MS);
 }
 
 void positionTask(void* pvParameters)

@@ -24,9 +24,13 @@ typedef enum {
 
 typedef struct {
     TeDataSource source;
-    
     uint8_t speed;
 } TsMotorData;
+
+typedef struct {
+    TeDataSource source;
+    uint8_t speed;
+} TsAngleData;
 
 extern QueueHandle_t motor_queue, angle_queue;
 

@@ -59,9 +59,6 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
-	CLOCK_EnableClock(kCLOCK_PortC);
-	PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
-
 
 //    /* Port B Clock Gate Control: Clock enabled */
 //    CLOCK_EnableClock(kCLOCK_PortB);
@@ -80,7 +77,12 @@ void BOARD_InitPins(void)
 //                  | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
 }
 
-void BOARD_InitMotorPins (void) {
+void BOARD_InitRCPins(void) {
+    CLOCK_EnableClock(kCLOCK_PortC);
+	PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
+}
+
+void BOARD_InitMotorPins(void) {
     CLOCK_EnableClock(kCLOCK_PortA);
     CLOCK_EnableClock(kCLOCK_PortC);
 
