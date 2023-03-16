@@ -17,7 +17,6 @@ int main(void)
     /* Init board hardware. */
     BOARD_InitBootClocks();
     BOARD_InitBootPins();
-    printf("BOOT CLOCKS INIT");
     setupMotorComponent();
     setupLEDComponent();
     setupRCReceiverComponent();

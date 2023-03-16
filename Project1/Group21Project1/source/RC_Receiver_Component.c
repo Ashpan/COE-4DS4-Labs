@@ -96,7 +96,7 @@ void rcTask(void* pvParameters)
 			 	case (2000):
 			 		break;
 			 	default:
-			 		printf("Unknown speed mode detected!\n");
+//			 		printf("Unknown speed mode detected!\n");
 			 		break;
 			 }
 
@@ -124,7 +124,7 @@ void rcTask(void* pvParameters)
             xQueueSendToBack(led_queue, (void *)&rc_values.ch8, portMAX_DELAY);
 
             // Wait for next data from radio receiver
-            vTaskDelay(10 / portTICK_PERIOD_MS); // 10 ms delay
+            vTaskDelay(1 / portTICK_PERIOD_MS); // 10 ms delay
 		}
 
 

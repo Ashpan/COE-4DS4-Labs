@@ -1,6 +1,6 @@
 #include "Motor_Control_Component.h"
 
-#define POS_MOTOR_OFFSET (0.069)
+#define POS_MOTOR_OFFSET (0.06775)
 
 QueueHandle_t motor_queue;
 QueueHandle_t angle_queue;
@@ -16,9 +16,9 @@ void setupMotorComponent()
 		PRINTF("Motor queue creation failed!.\r\n");
 		while(1);
 	}
-
+	BaseType_t status;
 	//Create Motor Task
-	BaseType_t status = xTaskCreate(motorTask, "motorTask", 200, (void *)motor_queue, 3, NULL);
+	status = xTaskCreate(motorTask, "motorTask", 200, (void *)motor_queue, 3, NULL);
 	if (status != pdPASS)
 	{
 		PRINTF("motorTask creation failed!.\r\n");
@@ -68,6 +68,10 @@ void setupMotors() {
 	FTM_SetupPwm(FTM_MOTORS, &ftmParam_DC_Motor, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(kCLOCK_BusClk));
 	FTM_SetupPwm(FTM_MOTORS, &ftmParam_Servo_Motor, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(kCLOCK_BusClk));
 	FTM_StartTimer(FTM_MOTORS, kFTM_SystemClock);
+
+	updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, POS_MOTOR_OFFSET);
+
+	FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 }
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
@@ -110,12 +114,12 @@ void motorTask(void *pvParameters)
 		 }
 
 		DCMotorDutyCycle = speed * 0.025f/100.0f + POS_MOTOR_OFFSET;
-//		DCMotorDutyCycle = 0.05 + ((float)speed + 100.0)*(0.00025);
 
 		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
+
 		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 
-		vTaskDelay(10 / portTICK_PERIOD_MS);
+//		vTaskDelay(1 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -140,6 +144,6 @@ void positionTask(void* pvParameters)
 		updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, ServoMotorDutyCycle);
 		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 
-		vTaskDelay(10 / portTICK_PERIOD_MS);
+//		vTaskDelay(1 / portTICK_PERIOD_MS);
 	}
 }
