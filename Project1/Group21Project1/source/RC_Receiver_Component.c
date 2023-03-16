@@ -58,7 +58,7 @@ void setupUART_RC()
 
 void rcTask(void* pvParameters)
 {
-
+	TsMotorData send_to_motor;
 	while (1)
 		{
             // Check if the task should be paused
@@ -87,6 +87,47 @@ void rcTask(void* pvParameters)
             //xQueueSendToBack(angleQueue, &rc_values.ch1, portMAX_DELAY);
             //xQueueSendToBack(motorQueue, &rc_values.ch3, portMAX_DELAY);
             //xQueueSendToBack(motorQueue, &rc_values.ch6, portMAX_DELAY);
+
+			float speed = 0.0;
+			speed = (((float) rc_values.ch3) / 10.0) - 100.0;
+
+			float angle = 0.0;
+			angle = (((float) rc_values.ch1) / 10.0) - 200.0;
+
+			 switch (rc_values.ch8) {
+			 	case (1500):	// med speed
+			 		speed = speed * (2.0/3.0);
+			 		break;
+			 	case (1000):
+			 		speed = speed * (1.0/3.0);
+			 		break;
+			 	case (2000):
+			 		break;
+			 	default:
+			 		printf("Unknown speed mode detected!\n");
+			 		break;
+			 }
+
+			// Check for reverse switch enabled/disabled
+			if (rc_values.ch6 > 1500) {
+				speed *= -1;
+			}
+
+//			send_to_motor.source = DATA_SOURCE_RC;
+//			send_to_motor.speed = speed;
+			
+			 BaseType_t status = xQueueSendToBack(angle_queue, (void *)&angle, portMAX_DELAY);
+			 if (status != pdPASS) {
+				PRINTF("Angle queue Send failed!.\r\n");
+				while(1);
+			 }
+
+			  status = xQueueSendToBack(motor_queue, (void *)&speed, portMAX_DELAY);
+			 if (status != pdPASS) {
+			 	PRINTF("Motor queue Send failed!.\r\n");
+			 	while(1);
+			 }
+
 
 			// Send LED
             xQueueSendToBack(led_queue, (void *)&rc_values.ch8, portMAX_DELAY);

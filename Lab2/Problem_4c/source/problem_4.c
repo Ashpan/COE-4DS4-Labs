@@ -106,8 +106,6 @@ int main(void)
 	EventGroupHandle_t event_group = xEventGroupCreate();
 	xEventGroupSetBits(event_group, TAKE_INPUT_BIT);
 
-
-
 	status = xTaskCreate(userInputTask, "userInput", 200, (void *)event_group, 2, NULL);
 	if (status != pdPASS)
 	{

@@ -59,24 +59,17 @@ void setupLEDComponent()
 
 void setupLEDPins()
 {
-	//Configure LED pins
-    // BOARD_InitPins();
-
-//    /* Port A Clock Gate Control: Clock enabled */
-//	CLOCK_EnableClock(kCLOCK_PortA);
-//	/* Port B Clock Gate Control: Clock enabled */
-//	CLOCK_EnableClock(kCLOCK_PortB);
 //	/* Port C Clock Gate Control: Clock enabled */
-	CLOCK_EnableClock(kCLOCK_PortC);
-	/* Port D Clock Gate Control: Clock enabled */
-	CLOCK_EnableClock(kCLOCK_PortD);
+//	CLOCK_EnableClock(kCLOCK_PortC);
+//	/* Port D Clock Gate Control: Clock enabled */
+//	CLOCK_EnableClock(kCLOCK_PortD);
+//
+//	// PWM RGB Setup
+//    PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
+//    PORT_SetPinMux(PORTC, 8u, kPORT_MuxAlt3);
+//    PORT_SetPinMux(PORTC, 9u, kPORT_MuxAlt3);
 
-	// PWM RGB Setup
-    PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
-    PORT_SetPinMux(PORTC, 8u, kPORT_MuxAlt3);
-    PORT_SetPinMux(PORTC, 9u, kPORT_MuxAlt3);
-
-    printf("%s: Successfully set boot pins!\r\n", MODULE_NAME);
+//    printf("%s: Successfully set boot pins!\r\n", MODULE_NAME);
 }
 
 void setupLEDs()

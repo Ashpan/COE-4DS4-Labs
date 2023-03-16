@@ -7,31 +7,74 @@ void setupMotorComponent()
 {
 	setupMotorPins();
 
-	setupDCMotor();
-	setupServo();
+	setupMotors();
+//	setupServo();
 
     /*************** Motor Task ***************/
 	//Create Motor Queue
+	motor_queue = xQueueCreate(1, sizeof(float));
+	if (motor_queue == NULL) {
+		PRINTF("Motor queue creation failed!.\r\n");
+		while(1);
+	}
+
 	//Create Motor Task
+	BaseType_t status = xTaskCreate(motorTask, "motorTask", 200, (void *)motor_queue, 3, NULL);
+	if (status != pdPASS)
+	{
+		PRINTF("motorTask creation failed!.\r\n");
+		while (1);
+	}
 
     /*************** Position Task ***************/
-	//Create Angle Queue
+	//	Create Angle Queue
+	QueueHandle_t angle_queue = xQueueCreate(1, sizeof(float));
+	if (angle_queue == NULL) {
+		PRINTF("Angle queue creation failed!.\r\n");
+		while(1);
+	}
+	
 	//Create Position Task
+	status = xTaskCreate(positionTask, "positionTask", 200, (void *)angle_queue, 3, NULL);
+	if (status != pdPASS)
+	{
+		PRINTF("positionTask creation failed!.\r\n");
+		while (1);
+	}
 }
 
+// Configure PWM pins for DC and Servo motors
 void setupMotorPins()
 {
-    //Configure PWM pins for DC and Servo motors
+	BOARD_InitMotorPins();
 }
 
-void setupDCMotor()
-{
-	//Initialize PWM for DC motor
-}
+//Initialize PWM for DC motor
+void setupMotors() {
+	ftm_config_t ftmInfo;
+	ftm_chnl_pwm_signal_param_t ftmParam_DC_Motor, ftmParam_Servo_Motor;
+	ftm_pwm_level_select_t pwmLevel = kFTM_HighTrue;
 
-void setupServo()
-{
-	//Initialize PWM for Servo motor
+	ftmParam_DC_Motor.chnlNumber = FTM_CHANNEL_DC_MOTOR;
+	ftmParam_DC_Motor.level = pwmLevel;
+	ftmParam_DC_Motor.dutyCyclePercent = 7;
+	ftmParam_DC_Motor.firstEdgeDelayPercent = 0U;
+	ftmParam_DC_Motor.enableComplementary   = false;
+	ftmParam_DC_Motor.enableDeadtime        = false;
+
+	ftmParam_Servo_Motor.chnlNumber = FTM_CHANNEL_SERVO_MOTOR;
+	ftmParam_Servo_Motor.level = pwmLevel;
+	ftmParam_Servo_Motor.dutyCyclePercent = 7;
+	ftmParam_Servo_Motor.firstEdgeDelayPercent = 0U;
+	ftmParam_Servo_Motor.enableComplementary   = false;
+	ftmParam_Servo_Motor.enableDeadtime        = false;
+
+	FTM_GetDefaultConfig(&ftmInfo);
+	ftmInfo.prescale = kFTM_Prescale_Divide_128;
+	FTM_Init(FTM_MOTORS, &ftmInfo);
+	FTM_SetupPwm(FTM_MOTORS, &ftmParam_DC_Motor, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(kCLOCK_BusClk));
+	FTM_SetupPwm(FTM_MOTORS, &ftmParam_Servo_Motor, 1U, kFTM_EdgeAlignedPwm, 50U, CLOCK_GetFreq(kCLOCK_BusClk));
+	FTM_StartTimer(FTM_MOTORS, kFTM_SystemClock);
 }
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
@@ -60,12 +103,78 @@ void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
 	FTM_MOTORS->CONTROLS[channel].CnV = cnv;
 }
 
-void motorTask(void* pvParameters)
+void motorTask(void *pvParameters)
 {
-	//Motor task implementation
+	while(1){
+		float speed;
+		QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
+		float DCMotorDutyCycle = 0.0;
+
+		 BaseType_t status = xQueueReceive(queue1, (void *)&speed, portMAX_DELAY);
+		 if (status != pdPASS) {
+		 	PRINTF("Motor queue receive failed!.\r\n");
+		 	while(1);
+		 }
+
+		// switch (motor_data.source) {
+			// case (DATA_SOURCE_RC):
+				// speed = motor_data.speed;
+				DCMotorDutyCycle = speed * 0.025f/100.0f + 0.0615;
+				updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
+				FTM_SetSoftwareTrigger(FTM_MOTORS, true);
+				// break;
+			// case (DATA_SOURCE_TERM) {
+
+			// 	break;
+			// }
+			// case (DATA_SOURCE_ACCEL) {
+
+			// 	break;
+			// }
+		// 	default:
+		// 		break;
+		// }
+
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+	}
 }
 
 void positionTask(void* pvParameters)
 {
-	//Position task implementation
+    float servoInputStart = -100.0;
+    float servoInputEnd = 100.0;
+    float servoOutputStart = 0.05;
+    float servoOutputEnd = 0.1;
+
+	while(1) {
+		float ServoMotorAngle = 0;
+		QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
+		float ServoMotorDutyCycle = 0.0;
+
+		 BaseType_t status = xQueueReceive(queue1, (void *)&ServoMotorAngle, portMAX_DELAY);
+		 if (status != pdPASS) {
+			while(1);
+		 }
+
+		// switch (motor_data.source) {
+			// case (DATA_SOURCE_RC):
+				// speed = motor_data.speed;
+				ServoMotorDutyCycle = servoOutputStart + ((servoOutputEnd - servoOutputStart) / (servoInputEnd - servoInputStart)) * (ServoMotorAngle - servoInputStart);
+			    updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, ServoMotorDutyCycle);
+				FTM_SetSoftwareTrigger(FTM_MOTORS, true);
+				// break;
+			// case (DATA_SOURCE_TERM) {
+
+			// 	break;
+			// }
+			// case (DATA_SOURCE_ACCEL) {
+
+			// 	break;
+			// }
+		// 	default:
+		// 		break;
+		// }
+
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+	}
 }

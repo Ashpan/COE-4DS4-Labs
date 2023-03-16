@@ -12,20 +12,35 @@
 
 #include "Terminal_Component.h"
 
-#define FTM_MOTORS 				FTM0
-#define FTM_CHANNEL_DC_MOTOR	//Define DC motor channel
-#define FTM_CHANNEL_SERVO		//Define servo PWM channel
+#define FTM_MOTORS				    FTM0
+#define FTM_CHANNEL_DC_MOTOR	    kFTM_Chnl_0
+#define FTM_CHANNEL_SERVO_MOTOR		kFTM_Chnl_3
+
+typedef enum {
+    DATA_SOURCE_RC = 0,
+    DATA_SOURCE_TERM,
+    DATA_SOURCE_ACCEL 
+} TeDataSource;
+
+typedef struct {
+    TeDataSource source;
+    uint8_t speed;
+} TsMotorData;
+
+typedef struct {
+    TeDataSource source;
+    uint8_t speed;
+} TsAngleData;
 
 extern QueueHandle_t motor_queue, angle_queue;
 
 void setupMotorComponent();
-void setupDCMotor();
-void setupServo();
+void setupMotors();
 void setupMotorPins();
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle);
 
-void motorTask(void* pvParameters);
+void motorTask();
 void positionTask(void* pvParameters);
 
 

@@ -59,16 +59,22 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+	CLOCK_EnableClock(kCLOCK_PortA);
+    CLOCK_EnableClock(kCLOCK_PortC);
+
+    PORT_SetPinMux(PORTA, 6u, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 1u, kPORT_MuxAlt4);
+
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
 
-    CLOCK_EnableClock(kCLOCK_PortC);
+//    CLOCK_EnableClock(kCLOCK_PortC);
     /* PTC3 configured as UART1_RX */
     PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
 
     PORT_SetPinMux(PORTC, 4U, kPORT_MuxAlt3);
     PORT_SetPinMux(PORTC, 2U, kPORT_MuxAlt3);
-    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt3);
+//    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt3; Might be the reason our motors arent working, we are initing this pin twice to differnet mux's - Dharak
 
     /* PORTB16 (pin E10) is configured as UART0_RX */
     PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt3);
@@ -76,12 +82,31 @@ void BOARD_InitPins(void)
     /* PORTB17 (pin E9) is configured as UART0_TX */
     PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt3);
 
-    SIM->SOPT5 = ((SIM->SOPT5 &
-                   /* Mask bits to zero which are setting */
-                   (~(SIM_SOPT5_UART0TXSRC_MASK)))
+    // LED pin setup
+	/* Port C Clock Gate Control: Clock enabled */
+//	CLOCK_EnableClock(kCLOCK_PortC);
+	/* Port D Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortD);
 
-                  /* UART 0 transmit data source select: UART0_TX pin. */
-                  | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
+	// PWM RGB Setup
+    PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
+    PORT_SetPinMux(PORTC, 8u, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 9u, kPORT_MuxAlt3);
+
+//    SIM->SOPT5 = ((SIM->SOPT5 &
+//                   /* Mask bits to zero which are setting */
+//                   (~(SIM_SOPT5_UART0TXSRC_MASK)))
+//
+//                  /* UART 0 transmit data source select: UART0_TX pin. */
+//                  | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
+}
+
+void BOARD_InitMotorPins(void) {
+//	CLOCK_EnableClock(kCLOCK_PortA);
+//    CLOCK_EnableClock(kCLOCK_PortC);
+//
+//    PORT_SetPinMux(PORTA, 6u, kPORT_MuxAlt3);
+//    PORT_SetPinMux(PORTC, 1u, kPORT_MuxAlt4);
 }
 /***********************************************************************************************************************
  * EOF

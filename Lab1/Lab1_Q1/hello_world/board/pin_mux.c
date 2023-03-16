@@ -68,6 +68,29 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTA, 6u, kPORT_MuxAlt3);
     PORT_SetPinMux(PORTC, 1u, kPORT_MuxAlt4);
 
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+
+//    CLOCK_EnableClock(kCLOCK_PortC);
+    /* PTC3 configured as UART1_RX */
+    PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt3);
+
+    PORT_SetPinMux(PORTC, 4U, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 2U, kPORT_MuxAlt3);
+//    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt3; Might be the reason our motors arent working, we are initing this pin twice to differnet mux's - Dharak
+
+    /* PORTB16 (pin E10) is configured as UART0_RX */
+    PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt3);
+
+    /* PORTB17 (pin E9) is configured as UART0_TX */
+    PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt3);
+
+//    SIM->SOPT5 = ((SIM->SOPT5 &
+//                   /* Mask bits to zero which are setting */
+//                   (~(SIM_SOPT5_UART0TXSRC_MASK)))
+//
+//                  /* UART 0 transmit data source select: UART0_TX pin. */
+//                  | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
 }
 /***********************************************************************************************************************
  * EOF
