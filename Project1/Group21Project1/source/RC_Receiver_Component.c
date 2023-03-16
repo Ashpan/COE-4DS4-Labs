@@ -46,7 +46,6 @@ void setupRCPins()
 	config.baudRate_Bps = 115200;
 	config.enableTx = false;
 	config.enableRx = true;
-
 }
 
 void setupUART_RC()

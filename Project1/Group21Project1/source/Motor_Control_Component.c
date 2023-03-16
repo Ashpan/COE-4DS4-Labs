@@ -1,6 +1,6 @@
 #include "Motor_Control_Component.h"
 
-#define MOTOR_OFFSET (0.075) // Midpoint between 5% and 10% accessible duty cycle
+#define POS_MOTOR_OFFSET (0.069)
 
 QueueHandle_t motor_queue;
 QueueHandle_t angle_queue;
@@ -109,7 +109,8 @@ void motorTask(void *pvParameters)
 		 	while(1);
 		 }
 
- 		DCMotorDutyCycle = speed * 0.025f/100.0f + MOTOR_OFFSET;
+		DCMotorDutyCycle = speed * 0.025f/100.0f + POS_MOTOR_OFFSET;
+//		DCMotorDutyCycle = 0.05 + ((float)speed + 100.0)*(0.00025);
 
 		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
 		FTM_SetSoftwareTrigger(FTM_MOTORS, true);

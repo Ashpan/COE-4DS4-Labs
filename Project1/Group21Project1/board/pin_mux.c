@@ -59,8 +59,11 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+	// Motor pin setup
 	CLOCK_EnableClock(kCLOCK_PortA);
     CLOCK_EnableClock(kCLOCK_PortC);
+    // LED pin setup
+	CLOCK_EnableClock(kCLOCK_PortD);
 
     PORT_SetPinMux(PORTA, 6u, kPORT_MuxAlt3);
     PORT_SetPinMux(PORTC, 1u, kPORT_MuxAlt4);
@@ -79,9 +82,6 @@ void BOARD_InitPins(void)
 
     /* PORTB17 (pin E9) is configured as UART0_TX */
     PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt3);
-
-    // LED pin setup
-	CLOCK_EnableClock(kCLOCK_PortD);
 
 	// PWM RGB Setup
     PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
