@@ -11,7 +11,7 @@ void setupMotorComponent()
 
     /*************** Motor Task ***************/
 	//Create Motor Queue
-	motor_queue = xQueueCreate(1, sizeof(float));
+	motor_queue = xQueueCreate(1, sizeof(uint16_t));
 	if (motor_queue == NULL) {
 		PRINTF("Motor queue creation failed!.\r\n");
 		while(1);
@@ -27,7 +27,7 @@ void setupMotorComponent()
 
     /*************** Position Task ***************/
 	//	Create Angle Queue
-	angle_queue = xQueueCreate(1, sizeof(float));
+	angle_queue = xQueueCreate(1, sizeof(uint16_t));
 	if (angle_queue == NULL) {
 		PRINTF("Angle queue creation failed!.\r\n");
 		while(1);
@@ -103,17 +103,20 @@ void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle)
 void motorTask(void *pvParameters)
 {
 	while(1) {
-		float speed = 0;
+		int speed = 0;
+		float speed_comp = 0.0;
 		float DCMotorDutyCycle = 0.0;
 		QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 
-		 BaseType_t status = xQueueReceive(queue1, (void *)&speed, portMAX_DELAY);
-		 if (status != pdPASS) {
+		BaseType_t status = xQueueReceive(queue1, (void *)&speed, portMAX_DELAY);
+		if (status != pdPASS) {
 		 	PRINTF("Motor queue receive failed!.\r\n");
 		 	while(1);
-		 }
+		}
 
-		DCMotorDutyCycle = speed * 0.025f/100.0f + POS_MOTOR_OFFSET;
+		speed_comp = (((float) speed) / 10.0) - 100.0;
+
+		DCMotorDutyCycle = speed_comp * 0.025f/100.0f + POS_MOTOR_OFFSET;
 
 		updatePWM_dutyCycle(FTM_CHANNEL_DC_MOTOR, DCMotorDutyCycle);
 
@@ -129,18 +132,21 @@ void positionTask(void* pvParameters)
     float servoInputEnd = 100.0;
     float servoOutputStart = 0.05;
     float servoOutputEnd = 0.1;
+	float angle = 0.0;
 
 	while(1) {
-		float ServoMotorAngle = 0;
-		QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
+		int ServoMotorAngle = 0;
 		float ServoMotorDutyCycle = 0.0;
+		QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
 
 		 BaseType_t status = xQueueReceive(queue1, (void *)&ServoMotorAngle, portMAX_DELAY);
 		 if (status != pdPASS) {
 			while(1);
 		 }
 
-		ServoMotorDutyCycle = servoOutputStart + ((servoOutputEnd - servoOutputStart) / (servoInputEnd - servoInputStart)) * (ServoMotorAngle - servoInputStart);
+		angle = ((ServoMotorAngle) / 5.0) - 300.0;
+
+		ServoMotorDutyCycle = servoOutputStart + ((servoOutputEnd - servoOutputStart) / (servoInputEnd - servoInputStart)) * (angle - servoInputStart);
 		updatePWM_dutyCycle(FTM_CHANNEL_SERVO_MOTOR, ServoMotorDutyCycle);
 		FTM_SetSoftwareTrigger(FTM_MOTORS, true);
 

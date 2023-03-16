@@ -80,40 +80,35 @@ void rcTask(void* pvParameters)
 //				// Forwards or backwards
 //				printf("Channel 8 = %d\t\n", rc_values.ch8);
 			}
-
-			float speed = 0.0;
-			float angle = 0.0;
-			speed = (((float) rc_values.ch3) / 10.0) - 100.0;
-			angle = (((float) rc_values.ch1) / 5.0) - 300.0;
-
-			 switch (rc_values.ch8) {
-			 	case (1500):	// med speed
-			 		speed = speed * (2.0/3.0);
-			 		break;
-			 	case (1000):
-			 		speed = speed * (1.0/3.0);
-			 		break;
-			 	case (2000):
-			 		break;
-			 	default:
-//			 		printf("Unknown speed mode detected!\n");
-			 		break;
-			 }
+//
+//			 switch (rc_values.ch8) {
+//			 	case (1500):	// med speed
+//			 		speed = speed * (2.0/3.0);
+//			 		break;
+//			 	case (1000):
+//			 		speed = speed * (1.0/3.0);
+//			 		break;
+//			 	case (2000):
+//			 		break;
+//			 	default:
+////			 		printf("Unknown speed mode detected!\n");
+//			 		break;
+//			 }
 
 			// Check for reverse switch enabled/disabled
-			if (rc_values.ch6 > 1500) {
-				speed *= -1;
-			}
+//			if (rc_values.ch6 > 1500) {
+//				speed *= -1;
+//			}
 			
 			BaseType_t status;
 
-			 status = xQueueSendToBack(angle_queue, (void *)&angle, portMAX_DELAY);
+			 status = xQueueSendToBack(angle_queue, (void *)&rc_values.ch1, portMAX_DELAY);
 			 if (status != pdPASS) {
 				PRINTF("Angle queue Send failed!.\r\n");
 				while(1);
 			 }
 
-			 status = xQueueSendToBack(motor_queue, (void *)&speed, portMAX_DELAY);
+			 status = xQueueSendToBack(motor_queue, (void *)&rc_values.ch3, portMAX_DELAY);
 			 if (status != pdPASS) {
 			 	PRINTF("Motor queue Send failed!.\r\n");
 			 	while(1);
