@@ -11,49 +11,16 @@ QueueHandle_t led_queue;
 #define FALSE (0u)
 #define MODULE_NAME ("LED Component")
 
-int inputFlag = FALSE;
-
-//enum LED_state {
-//	RED = 1,
-//	YELLOW = 2,
-//	GREEN = 3
-//};
-
+// Define the color
 #define RED (0xff0000)
 #define YELLOW (0xffff00)
 #define GREEN (0x00ff00)
 
-//// For testing, will probably move to RC Component to send stuff
-//void ledReceiveTask(void *pvParameters) {
-//
-//	int input;
-//	QueueHandle_t queue1 = (QueueHandle_t)pvParameters;
-//	BaseType_t status;
-//
-//	printf("Enter user input: ");
-//	scanf("%d", &input);
-//
-//	status = xQueueSendToBack(queue1, (void *)&input, portMAX_DELAY);
-//	if (status != pdPASS)
-//	{
-//		printf("Queue Send failed!.\r\n");
-//		while(1);
-//	}
-//
-//
-//	printf("%s: Received LED Input = %d\r\n", MODULE_NAME, input);
-//	inputFlag = TRUE;
-//
-//	vTaskDelete(NULL);
-//}
-
 void setupLEDComponent()
 {
 	printf("\n"); // Remove after fixing printing format
-	// setupLEDBootClocks();
 	setupLEDPins();
 	setupLEDs();
-
 
     /*************** LED Task ***************/
 	// Create LED Queue
@@ -68,15 +35,6 @@ void setupLEDComponent()
 
 	//Create LED Task
 	BaseType_t status;
-
-	// Create ledReceiveTask
-//	status = xTaskCreate(ledReceiveTask, "ledReceiveTask", 200, (void *)led_queue, 2, NULL);
-
-	// Error checking for creating LED Task
-//	if (status != pdPASS) {
-//		PRINTF("%s: Task creation failed!.\r\n", MODULE_NAME);
-//		while(1);
-//	}
 
 	// Create ledTask
 	status = xTaskCreate(ledTask, "ledTask", 200, (void *)led_queue, 3, NULL);
@@ -104,42 +62,14 @@ void setupLEDPins()
 	//Configure LED pins
     // BOARD_InitPins();
 
-    /* Port A Clock Gate Control: Clock enabled */
-       CLOCK_EnableClock(kCLOCK_PortA);
-       /* Port B Clock Gate Control: Clock enabled */
-       CLOCK_EnableClock(kCLOCK_PortB);
-       /* Port C Clock Gate Control: Clock enabled */
-       CLOCK_EnableClock(kCLOCK_PortC);
-       /* Port D Clock Gate Control: Clock enabled */
-       CLOCK_EnableClock(kCLOCK_PortD);
-
-    //    /* PORTA2 (pin K6) is configured as TRACE_SWO */
-    //    PORT_SetPinMux(BOARD_TRACE_SWO_PORT, BOARD_TRACE_SWO_PIN, kPORT_MuxAlt7);
-
-    //    PORTA->PCR[2] = ((PORTA->PCR[2] &
-    //                      /* Mask bits to zero which are setting */
-    //                      (~(PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-    //                     /* Pull Select: Internal pulldown resistor is enabled on the corresponding pin, if the
-    //                      * corresponding PE field is set. */
-    //                     | PORT_PCR_PS(kPORT_PullDown)
-
-    //                     /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding pin. */
-    //                     | PORT_PCR_PE(kPORT_PullDisable));
-
-    //    /* PORTB16 (pin E10) is configured as UART0_RX */
-    //    PORT_SetPinMux(BOARD_DEBUG_UART_RX_PORT, BOARD_DEBUG_UART_RX_PIN, kPORT_MuxAlt3);
-
-    //    /* PORTB17 (pin E9) is configured as UART0_TX */
-    //    PORT_SetPinMux(BOARD_DEBUG_UART_TX_PORT, BOARD_DEBUG_UART_TX_PIN, kPORT_MuxAlt3);
-
-    //    SIM->SOPT5 = ((SIM->SOPT5 &
-    //                   /* Mask bits to zero which are setting */
-    //                   (~(SIM_SOPT5_UART0TXSRC_MASK)))
-
-    //                  /* UART 0 transmit data source select: UART0_TX pin. */
-    //                  | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
-
+//    /* Port A Clock Gate Control: Clock enabled */
+//	CLOCK_EnableClock(kCLOCK_PortA);
+//	/* Port B Clock Gate Control: Clock enabled */
+//	CLOCK_EnableClock(kCLOCK_PortB);
+//	/* Port C Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortC);
+	/* Port D Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortD);
 
 	// PWM RGB Setup
     PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
@@ -151,7 +81,7 @@ void setupLEDPins()
 
 void setupLEDs()
 {
-	//Initialize PWM for the LEDs
+	// Initialize PWM for the LEDs
 	// Copied from https://github.com/Ashpan/COE-4DS4-Labs/blob/main/Lab0/Lab0_Q5/lab0_q5_hello_world/source/hello_world.c
 
 	ftm_config_t ftmInfo;
@@ -197,7 +127,6 @@ void setupLEDs()
 }
 
 
-
 void ledTask(void *pvParameters) {
 	unsigned long color;
 	uint16_t receivedInput;
@@ -205,36 +134,29 @@ void ledTask(void *pvParameters) {
 	BaseType_t status;
 
 	while (1) {
-	status = xQueueReceive(queue1, (void *)&receivedInput, portMAX_DELAY);
-	printf("%s: Received %d from RC Task", MODULE_NAME, receivedInput);
+		status = xQueueReceive(queue1, (void *)&receivedInput, portMAX_DELAY);
+		printf("%s: Received %d from RC Task\n", MODULE_NAME, receivedInput);
 
-	if (status != pdPASS) {
-		printf("Queue Receive failed!.\r\n");
-//		while(1);
-	}
-
-
-
-		if (inputFlag) {
-				if (receivedInput == 1){ color = GREEN; }
-				if (receivedInput == 2){ color = YELLOW; }
-				if (receivedInput == 3){ color = RED; }
-
-				// set colors of LED
-				FTM_UpdatePwmDutycycle(FTM_LED, FTM_RED_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 16) & (0xFF))/255)*100);
-				FTM_UpdatePwmDutycycle(FTM_LED, FTM_GREEN_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 8) & (0xFF))/255)*100);
-				FTM_UpdatePwmDutycycle(FTM_LED, FTM_BLUE_CHANNEL, kFTM_EdgeAlignedPwm, (((color) & (0xFF))/255)*100);
-				FTM_SetSoftwareTrigger(FTM_LED, true);
-
-				printf("%s: Set LED Color = %d\r\n", MODULE_NAME, receivedInput);
-
-				break;
-
+		if (status != pdPASS) {
+			printf("Queue Receive failed!.\r\n");
 		}
 
-		// Force scheduler to move to other tasks if inputFlag != TRUE
+		// Range is from 1000 to 2000, so map into thirds for speed.
+		if (receivedInput <= 1333){ color = GREEN; }
+		if (receivedInput > 1333 && receivedInput <= 1666){ color = YELLOW; }
+		if (receivedInput > 1666){ color = RED; }
+
+		// set colors of LED
+		FTM_UpdatePwmDutycycle(FTM_LED, FTM_RED_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 16) & (0xFF))/255)*100);
+		FTM_UpdatePwmDutycycle(FTM_LED, FTM_GREEN_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 8) & (0xFF))/255)*100);
+		FTM_UpdatePwmDutycycle(FTM_LED, FTM_BLUE_CHANNEL, kFTM_EdgeAlignedPwm, (((color) & (0xFF))/255)*100);
+		FTM_SetSoftwareTrigger(FTM_LED, true);
+
+		printf("%s: Set LED Color = %d\r\n", MODULE_NAME, receivedInput);
+
+		// Add delay so it doesn't update so often
 		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 
-//	vTaskDelete(NULL);
+	vTaskDelete(NULL);
 }
