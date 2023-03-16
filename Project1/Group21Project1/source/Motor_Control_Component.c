@@ -28,7 +28,7 @@ void setupMotorComponent()
 
     /*************** Position Task ***************/
 	//	Create Angle Queue
-	QueueHandle_t angle_queue = xQueueCreate(1, sizeof(float));
+	angle_queue = xQueueCreate(1, sizeof(float));
 	if (angle_queue == NULL) {
 		PRINTF("Angle queue creation failed!.\r\n");
 		while(1);

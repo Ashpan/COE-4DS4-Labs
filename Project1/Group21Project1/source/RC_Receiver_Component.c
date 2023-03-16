@@ -92,7 +92,7 @@ void rcTask(void* pvParameters)
 			speed = (((float) rc_values.ch3) / 10.0) - 100.0;
 
 			float angle = 0.0;
-			angle = (((float) rc_values.ch1) / 10.0) - 200.0;
+			angle = (((float) rc_values.ch1) / 5.0) - 300.0;
 
 			 switch (rc_values.ch8) {
 			 	case (1500):	// med speed
@@ -116,13 +116,15 @@ void rcTask(void* pvParameters)
 //			send_to_motor.source = DATA_SOURCE_RC;
 //			send_to_motor.speed = speed;
 			
-			 BaseType_t status = xQueueSendToBack(angle_queue, (void *)&angle, portMAX_DELAY);
+			BaseType_t status;
+
+			 status = xQueueSendToBack(angle_queue, (void *)&angle, portMAX_DELAY);
 			 if (status != pdPASS) {
 				PRINTF("Angle queue Send failed!.\r\n");
 				while(1);
 			 }
 
-			  status = xQueueSendToBack(motor_queue, (void *)&speed, portMAX_DELAY);
+			 status = xQueueSendToBack(motor_queue, (void *)&speed, portMAX_DELAY);
 			 if (status != pdPASS) {
 			 	PRINTF("Motor queue Send failed!.\r\n");
 			 	while(1);
