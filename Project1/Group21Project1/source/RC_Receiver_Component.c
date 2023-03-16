@@ -77,6 +77,9 @@ void rcTask(void* pvParameters)
 
 				// Forwards or backwards
 				printf("Channel 6 = %d\t", rc_values.ch6);
+
+				// Forwards or backwards
+				printf("Channel 8 = %d\t", rc_values.ch8);
 			}
 
 			printf("\n");
@@ -86,7 +89,7 @@ void rcTask(void* pvParameters)
             //xQueueSendToBack(motorQueue, &rc_values.ch6, portMAX_DELAY);
 
 			// Send LED
-            xQueueSendToBack(led_queue, (void *)&rc_values.ch3, portMAX_DELAY);
+            xQueueSendToBack(led_queue, (void *)&rc_values.ch8, portMAX_DELAY);
 
             // Wait for next data from radio receiver
             vTaskDelay(10 / portTICK_PERIOD_MS); // 10 ms delay

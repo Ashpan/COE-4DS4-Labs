@@ -142,9 +142,9 @@ void ledTask(void *pvParameters) {
 		}
 
 		// Range is from 1000 to 2000, so map into thirds for speed.
-		if (receivedInput <= 1333){ color = GREEN; }
-		if (receivedInput > 1333 && receivedInput <= 1666){ color = YELLOW; }
-		if (receivedInput > 1666){ color = RED; }
+		if (receivedInput == 1000){ color = GREEN; }
+		if (receivedInput == 1500){ color = YELLOW; }
+		if (receivedInput == 2000){ color = RED; }
 
 		// set colors of LED
 		FTM_UpdatePwmDutycycle(FTM_LED, FTM_RED_CHANNEL, kFTM_EdgeAlignedPwm, (((color >> 16) & (0xFF))/255)*100);
