@@ -33,7 +33,6 @@ extern QueueHandle_t led_queue;
 void setupLEDBootClocks();
 void setupLEDComponent();
 void setupLEDs();
-void setupLEDPins();
 
 void ledTask(void* pvParameters);
 void ledReceiveTask(void* pvParameters);

@@ -36,7 +36,6 @@ extern QueueHandle_t motor_queue, angle_queue;
 
 void setupMotorComponent();
 void setupMotors();
-void setupMotorPins();
 
 void updatePWM_dutyCycle(ftm_chnl_t channel, float dutyCycle);
 

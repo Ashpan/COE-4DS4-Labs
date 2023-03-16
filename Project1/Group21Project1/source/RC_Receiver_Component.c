@@ -69,29 +69,22 @@ void rcTask(void* pvParameters)
 
 			if(rc_values.header == 0x4020)
 			{
-				// Angle
-				printf("Channel 1 = %d\t", rc_values.ch1);
-
-				// LED and Motor values
-				printf("Channel 3 = %d\t", rc_values.ch3);
-
-				// Forwards or backwards
-				printf("Channel 6 = %d\t", rc_values.ch6);
-
-				// Forwards or backwards
-				printf("Channel 8 = %d\t", rc_values.ch8);
+//				// Angle
+//				printf("Channel 1 = %d\t", rc_values.ch1);
+//
+//				// LED and Motor values
+//				printf("Channel 3 = %d\t", rc_values.ch3);
+//
+//				// Forwards or backwards
+//				printf("Channel 6 = %d\t", rc_values.ch6);
+//
+//				// Forwards or backwards
+//				printf("Channel 8 = %d\t\n", rc_values.ch8);
 			}
 
-			printf("\n");
-            // Send the decoded values to the corresponding queues
-            //xQueueSendToBack(angleQueue, &rc_values.ch1, portMAX_DELAY);
-            //xQueueSendToBack(motorQueue, &rc_values.ch3, portMAX_DELAY);
-            //xQueueSendToBack(motorQueue, &rc_values.ch6, portMAX_DELAY);
-
 			float speed = 0.0;
-			speed = (((float) rc_values.ch3) / 10.0) - 100.0;
-
 			float angle = 0.0;
+			speed = (((float) rc_values.ch3) / 10.0) - 100.0;
 			angle = (((float) rc_values.ch1) / 5.0) - 300.0;
 
 			 switch (rc_values.ch8) {
@@ -112,9 +105,6 @@ void rcTask(void* pvParameters)
 			if (rc_values.ch6 > 1500) {
 				speed *= -1;
 			}
-
-//			send_to_motor.source = DATA_SOURCE_RC;
-//			send_to_motor.speed = speed;
 			
 			BaseType_t status;
 

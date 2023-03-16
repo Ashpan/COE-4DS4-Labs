@@ -19,7 +19,6 @@ QueueHandle_t led_queue;
 void setupLEDComponent()
 {
 	printf("\n"); // Remove after fixing printing format
-	setupLEDPins();
 	setupLEDs();
 
     /*************** LED Task ***************/
@@ -45,31 +44,6 @@ void setupLEDComponent()
 		while(1);
 	}
 
-}
-
-// void setupLEDBootClocks()
-// {
-// 	CLOCK_SetSimSafeDivs();
-// 	CLOCK_SetInternalRefClkConfig(kMCG_IrclkEnable, kMCG_IrcFast, 2);
-// 	CLOCK_CONFIG_SetFllExtRefDiv(0);
-// 	CLOCK_SetExternalRefClkConfig(kMCG_OscselIrc);
-// 	CLOCK_SetSimConfig(&simConfig_BOARD_BootClockRUN);
-// 	SystemCoreClock = BOARD_BOOTCLOCKRUN_CORE_CLOCK;
-// }
-
-void setupLEDPins()
-{
-//	/* Port C Clock Gate Control: Clock enabled */
-//	CLOCK_EnableClock(kCLOCK_PortC);
-//	/* Port D Clock Gate Control: Clock enabled */
-//	CLOCK_EnableClock(kCLOCK_PortD);
-//
-//	// PWM RGB Setup
-//    PORT_SetPinMux(PORTD, 1u, kPORT_MuxAlt4);
-//    PORT_SetPinMux(PORTC, 8u, kPORT_MuxAlt3);
-//    PORT_SetPinMux(PORTC, 9u, kPORT_MuxAlt3);
-
-//    printf("%s: Successfully set boot pins!\r\n", MODULE_NAME);
 }
 
 void setupLEDs()
@@ -128,7 +102,7 @@ void ledTask(void *pvParameters) {
 
 	while (1) {
 		status = xQueueReceive(queue1, (void *)&receivedInput, portMAX_DELAY);
-		printf("%s: Received %d from RC Task\n", MODULE_NAME, receivedInput);
+//		printf("%s: Received %d from RC Task\n", MODULE_NAME, receivedInput);
 
 		if (status != pdPASS) {
 			printf("Queue Receive failed!.\r\n");
@@ -145,7 +119,7 @@ void ledTask(void *pvParameters) {
 		FTM_UpdatePwmDutycycle(FTM_LED, FTM_BLUE_CHANNEL, kFTM_EdgeAlignedPwm, (((color) & (0xFF))/255)*100);
 		FTM_SetSoftwareTrigger(FTM_LED, true);
 
-		printf("%s: Set LED Color = %d\r\n", MODULE_NAME, receivedInput);
+//		printf("%s: Set LED Color = %d\r\n", MODULE_NAME, receivedInput);
 
 		// Add delay so it doesn't update so often
 		vTaskDelay(10 / portTICK_PERIOD_MS);
